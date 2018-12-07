@@ -1,0 +1,95 @@
+
+{-# LANGUAGE OverloadedStrings #-}
+
+module Model
+where
+import Data.Text
+import Data.Int
+import Database.SQLite.Simple
+
+import System.Directory  -- doesFileExist
+import System.IO.Error  -- mkIOError, ...
+
+-- ****************************************************************
+-- Model
+
+data Task = Task Text Bool
+        deriving (Show)
+
+taskTitle (Task title done) = title
+taskDone  (Task title done) = done
+taskSetDone done (Task title _) = Task title done
+
+type TaskId = Int64
+
+type TaskDb = Connection
+
+instance FromRow Task where
+  fromRow = Task <$> field <*> field
+
+instance ToRow Task where
+  toRow (Task title done) = toRow (title, done)
+  
+--  
+data User = User Text Text deriving (Show)
+
+instance FromRow User where
+  fromRow = User <$> field <*> field
+
+instance ToRow User where
+  toRow (User id_ str) = toRow (id_, str)
+-- 
+
+openExistingDb :: Text -> IO TaskDb
+openExistingDb path = do
+    let path' = unpack path
+    ok <- doesFileExist path'
+    if ok then open path'
+          else ioError $ mkIOError doesNotExistErrorType "Cannot open data base file" Nothing (Just path')
+
+openDb :: Text -> IO TaskDb
+openDb path = do
+    conn <- open $ unpack path
+    execute_ conn "CREATE TABLE IF NOT EXISTS tasks (id INTEGER PRIMARY KEY, title TEXT, done INTEGER)"
+    execute_ conn "CREATE TABLE IF NOT EXISTS users (name TEXT PRIMARY KEY, pass TEXT)"
+    pure conn
+
+closeDb :: TaskDb -> IO ()
+closeDb conn =
+    close conn
+
+addInitDb :: TaskDb -> IO ()
+addInitDb conn = do
+    addTask "Tasca 1" conn
+    tid2 <- addTask "Tasca 2" conn
+    markTask tid2 conn
+
+getTaskList :: TaskDb -> IO [(TaskId, Task)]
+getTaskList conn = do
+    rows <- query_ conn "SELECT * from tasks"
+    pure $ unrow <$> rows
+    where unrow (Only tid :. task) = (tid, task)
+
+addTask :: Text -> TaskDb -> IO TaskId
+addTask title conn = do
+    execute conn "INSERT INTO tasks (title,done) VALUES (?,0)" (Only title)
+    lastInsertRowId conn
+
+markTask :: TaskId -> TaskDb -> IO ()
+markTask tid conn =
+    execute conn "UPDATE tasks SET done = 1 WHERE id = ?" (Only tid)
+
+deleteTask :: TaskId -> TaskDb -> IO ()
+deleteTask tid conn =
+    execute conn "DELETE FROM tasks WHERE id = ?" (Only tid)
+    
+addUser :: Text -> Text -> TaskDb -> IO ()
+addUser usr passwrd conn = do
+    execute conn "INSERT INTO users (name,pass) VALUES (?,?)" (User usr passwrd)
+    lastInsertRowId conn    
+    
+getUserList :: TaskDb -> IO [(Text, Text)]
+getUserList conn = do
+    query_ conn "SELECT * from users"
+
+
