@@ -88,10 +88,9 @@ addUser usr passwrd conn = do
     execute conn "INSERT INTO users (name,pass) VALUES (?,?)" (User usr passwrd)
     lastInsertRowId conn    
     
-getUserList :: TaskDb -> [(Text, Text)]
+getUserList :: TaskDb -> IO [(Text, Text)]
 getUserList conn = do
     rows <- query_ conn "SELECT * from users"
     pure rows
-    pure $ unrow <$> rows
-    where unrow (Only name) = name
+
 

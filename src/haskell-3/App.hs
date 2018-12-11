@@ -44,6 +44,13 @@ service db req respond = do
                 postLogin db req respond
             else
                 respond $ errorResponse methodNotAllowed405 $ "Invalid request method " <> T.pack (show meth)
+        ["home"] ->
+            if meth == methodGet then
+                getHome db req respond
+            else if meth == methodPost then
+                postHome db req respond
+            else
+                respond $ errorResponse methodNotAllowed405 $ "Invalid request method " <> T.pack (show meth)
         ["login"] ->
             if meth == methodGet then
                 getLogin req respond
@@ -88,7 +95,7 @@ postLogin db req respond = do
                     Nothing        -> respond $ invalidArg "password"
                     Just password  -> do
                         -- Get list of Users registered as Tuple (Username, Password) 
-                        let userList = getUserList db
+                        userList <- getUserList db
                         if isJust (lookup user userList) then
                                 if fromJust (lookup user userList) == password then 
                                         respond $ redirectResponse (approot <> homePath) (Just user) approot
@@ -120,8 +127,7 @@ postSignup db req respond = do
                     Just ""        -> respond $ invalidArg "password"
                     Nothing        -> respond $ invalidArg "password"
                     Just password  -> do 
-                        --TODO: 
-                        FALTARIA COMPROBAR QUE NO HI FOS JA A LA BASE DE DADES
+                        --TODO: FALTARIA COMPROBAR QUE NO HI FOS JA A LA BASE DE DADES
                         addUser user password db
                         respond $ redirectResponse (approot <> loginPath) (getSessionUser req) approot
      else respond $ errorResponse notFound404 $ "Incorrect sign up."
@@ -255,7 +261,7 @@ errorResponse status msg =
                 <> "</body></html>\n"
     in responseBuilder status headers (T.encodeUtf8Builder html)
 
-authLoginUser :: Text -> IO [(Text, Text)] -> Maybe Text
-authLoginUser user dbTuples =  (L.head [y | (x,y) <- dbTuples, x == user])
+-- authLoginUser :: Text -> [(Text, Text)] -> Maybe Text
+-- authLoginUser user dbTuples =  (L.head [Maybe y | (x,y) <- dbTuples, x == user])
 
 

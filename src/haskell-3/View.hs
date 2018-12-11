@@ -12,7 +12,7 @@ import Data.ByteString
 import Data.Maybe
 
 homePath :: Text
-homePath = "/"
+homePath = "/home"
 
 loginPath :: Text
 loginPath = "/login"
@@ -37,7 +37,7 @@ loginHtml appRoot =
         let html3 = "<!DOCTYPE html>\n"
                 <> "<html lang='en' >\n"
                 <> "<head>\n"
-                <> "    <title>Sing in</title>\n"
+                <> "    <title>Singing</title>\n"
                 <> "    <meta charset='UTF-8' >\n"
                 <> "<meta name='viewport' content='width=device-width, initial-scale=1'>\n"
                 <> "<link rel='icon' type='image/png' href='http://soft0.upc.edu/~ldatusr21/practica3/Miquel/project-p3/src/haskell-3/images/icons/hs-icon.png'/>\n"
@@ -56,9 +56,9 @@ loginHtml appRoot =
                 <> "<div class='login100-pic js-tilt' data-tilt>\n"
                 <> "<img src='http://soft0.upc.edu/~ldatusr21/practica3/Miquel/project-p3/src/haskell-3/images/peaky-login.png' alt='IMG'>\n"
                 <> "</div>\n"
-                <> "<form class='login100-form validate-form' method='GET' href='#'>\n"
+                <> "<form class='login100-form validate-form' method='POST' href='#'>\n"
                 <> "<span class='login100-form-title'>\n"
-                <> "Sing in\n"
+                <> "Singing\n"
                 <> "</span>\n"
                 <> "<div class='wrap-input100 validate-input' data-validate = 'Valid email is required: ex@abc.xyz'>\n"
                 <> "<input class='input100' type='text' name='user-login' placeholder='Login'>\n"
@@ -129,7 +129,7 @@ signupHtml appRoot =
                 <> "<div class='login100-pic js-tilt' data-tilt>\n"
                 <> "<img src='http://soft0.upc.edu/~ldatusr21/practica3/Miquel/project-p3/src/haskell-3/images/peaky-signup.png' alt='IMG'>\n"
                 <> "</div>\n"
-                <> "<form class='login100-form validate-form' method=POST action='#'>\n"
+                <> "<form class='login100-form validate-form' method='POST' action='#'>\n"
                 <> "<span class='login100-form-title'>\n"
                 <> "Sign up\n"
                 <> "</span>\n"
@@ -181,11 +181,47 @@ signupHtml appRoot =
 -- ****************************************************************
 pageHtml :: [(TaskId, Task)] -> Maybe Text-> Text
 pageHtml tasks mbuser =
-    let html1 =    "<!DOCTYPE html>\n"
-                <> "<html><head>\n"
-                <> "  <title>Tasques</title>\n"
-                <> "  <link rel='stylesheet' type='text/css' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css'>\n"
-                <> "</head><body><div class='container-fluid'>\n"
+    let html1 =   "<!DOCTYPE html>\n"
+                <> "<html lang='en' >\n"
+                <> "<head>\n"
+                <> "    <title>Sing in</title>\n"
+                <> "    <meta charset='UTF-8' >\n"
+                <> "<meta name='viewport' content='width=device-width, initial-scale=1'>\n"
+                <> "<link rel='icon' type='image/png' href='http://soft0.upc.edu/~ldatusr21/practica3/Miquel/project-p3/src/haskell-3/images/icons/hs-icon.png'/>\n"
+                <> "<link rel='stylesheet' type='text/css' href='http://soft0.upc.edu/~ldatusr21/practica3/Miquel/project-p3/src/haskell-3/vendor/bootstrap/css/bootstrap.min.css'>\n"
+                <> "<link rel='stylesheet' type='text/css' href='http://soft0.upc.edu/~ldatusr21/practica3/Miquel/project-p3/src/haskell-3/fonts/font-awesome-4.7.0/css/font-awesome.min.css'>\n"
+                <> "<link rel='stylesheet' type='text/css' href='http://soft0.upc.edu/~ldatusr21/practica3/Miquel/project-p3/src/haskell-3/vendor/animate/animate.css'>\n"
+                <> "<link rel='stylesheet' type='text/css' href='http://soft0.upc.edu/~ldatusr21/practica3/Miquel/project-p3/src/haskell-3/vendor/css-hamburgers/hamburgers.min.css'>\n"
+                <> "<link rel='stylesheet' type='text/css' href='http://soft0.upc.edu/~ldatusr21/practica3/Miquel/project-p3/src/haskell-3/vendor/select2/select2.min.css'>\n"
+                <> "<link rel='stylesheet' type='text/css' href='http://soft0.upc.edu/~ldatusr21/practica3/Miquel/project-p3/src/haskell-3/css/util.css'>\n"
+                <> "<link rel='stylesheet' type='text/css' href='http://soft0.upc.edu/~ldatusr21/practica3/Miquel/project-p3/src/haskell-3/css/main.css'>\n"
+                <> "</head>\n"
+                <> "<body>\n"
+                <> "<div class='limiter'>\n"
+                <> "<div class='container-login100'>\n"
+                <> "<div class='wrap-login100'>\n"
+                <> "<form class='login100-form validate-form' method='POST' action='#'>\n"
+                <> "<span class='login100-form-title'>\n"
+                <> (if mbuser == Nothing then
+                        "<a href=\"http://soft0.upc.edu/~ldatusr21/practica3/Miquel/tasks.cgi/login\">Login first</a> " 
+                    else "Tasques de " <> fromJust mbuser <> ".     <a href=\"http://soft0.upc.edu/~ldatusr21/practica3/Miquel/tasks.cgi/logout\">Logout</a>\n")
+                <> "</span>\n"
+                <> "<div class='wrap-input100 validate-input' data-validate = 'Write some title'>\n"
+                <> "<input class='input100' type='text' id='title' name='title' placeholder='Title here'>\n"
+                <> "<span class='focus-input100'></span>\n"
+                <> "<span class='symbol-input100'>\n"
+                <> "<i class='fa fa-envelope' aria-hidden='true'></i>\n"
+                <> "</span>\n"
+                <> "</div>\n"
+                <> "<div class='container-login100-form-btn'>\n"
+                <> "<button class='login100-form-btn' type='submit' name='add'>\n"
+                <> "Add entry\n"
+                <> "</button>\n"
+                <> "</div>\n"
+                <> "</form>\n"
+
+
+{--
                 <> "<h1>Tasques</h1>\n"
                 <> (if mbuser == Nothing then
                         "<a href=\"http://soft0.upc.edu/~ldatusr21/public_html/practica3/Miquel/tasks.cgi/login\">Login</a> " 
@@ -203,8 +239,7 @@ pageHtml tasks mbuser =
                 <> "      <button type='submit' class='btn btn-primary' name='add'>Afegeix</button>\n"
                 <> "    </div>\n"
                 <> "  </div>\n"
-                <> "</form>\n"
-                <> "<hr>\n"
+                <> "</form>\n"--}
                 <> "<form method='POST' action='#'><table class='table table-striped table-condensed'>\n"
                 <> "  <thead><tr><th>&nbsp;</th><th>Títol</th><th>Estat</th></tr></thead><tbody>\n"
         taskToHtml (tid, Task title done) =
@@ -220,7 +255,7 @@ pageHtml tasks mbuser =
                 <> "  </div>\n"
                 <> "</div>\n"
                 <> "</form>\n"
-                <> "</div></body></html>\n"
+                <> "</div></div></div></body></html>\n"
     in html1 <> foldMap taskToHtml tasks <> html2
 
 escapeHtml :: Text -> Text
