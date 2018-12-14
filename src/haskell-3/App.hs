@@ -127,9 +127,13 @@ postSignup db req respond = do
                     Just ""        -> respond $ invalidArg "password"
                     Nothing        -> respond $ invalidArg "password"
                     Just password  -> do 
-                        --TODO: FALTARIA COMPROBAR QUE NO HI FOS JA A LA BASE DE DADES
-                        addUser user password db
-                        respond $ redirectResponse (approot <> loginPath) (getSessionUser req) approot
+                        -- Get list of Users registered as Tuple (Username, Password) 
+                        userList <- getUserList db
+                        if isJust (lookup user userList) then
+                            respond $ invalidArg "User already on use"
+                        else do
+                            addUser user password db
+                            respond $ redirectResponse (approot <> loginPath) (getSessionUser req) approot
      else respond $ errorResponse notFound404 $ "Incorrect sign up."
   where
     invalidArg arg = errorResponse badRequest400 ("Invalid arguments: " <> arg)
@@ -261,7 +265,5 @@ errorResponse status msg =
                 <> "</body></html>\n"
     in responseBuilder status headers (T.encodeUtf8Builder html)
 
--- authLoginUser :: Text -> [(Text, Text)] -> Maybe Text
--- authLoginUser user dbTuples =  (L.head [Maybe y | (x,y) <- dbTuples, x == user])
 
 
